@@ -1,0 +1,6 @@
+numpy
+requests
+mergedeep
+openai
+networkx
+scikit-learn
