@@ -26,6 +26,7 @@ print('')
 print('========================== OpenAI ========================== ')
 cluster_print(oai_l_clusters)
 
+print('')
 print('========================== Textonic ========================== ')
 cluster_print(ttnx_l_clusters)
 
