@@ -1,6 +1,8 @@
 import os
 import requests
 import json
+import kl.log
+import logging
 import uuid
 
 from mergedeep import merge
@@ -8,6 +10,8 @@ from uuid import uuid3
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
 from typing import Any, List, TypeVar, Dict
+
+logger = logging.getLogger('kl.articles')
 
 TArticle = TypeVar("TArticle", bound="Article")
 TArticles = TypeVar("TArticles", bound="Articles")
@@ -74,8 +78,8 @@ class Article:
     def to_cache(self, data_path):
         if not os.path.exists(data_path):
             os.makedirs(data_path)
-        with open(os.path.join('data', self.uuid + '.json'), 'w') as fp:
-            json.dump(self.data, fp)
+        with open(os.path.join('data', self.uuid + '.json'), 'w', encoding='utf8') as json_file:
+            json.dump(self.data, json_file, indent='  ', ensure_ascii=False)
 
     def from_cache(self, data_path) -> bool:
         if not os.path.exists(data_path):
@@ -233,7 +237,7 @@ class Articles:
         query = query.replace('<date_end>', end.astimezone().isoformat())
         query = self._inject_filters(query)
         # print(query)
-
+        logger.debug("Loading Elasticsearch articles ...")
         result = []
         try:
             # make HTTP verb parameter case-insensitive by converting to lower()
@@ -242,15 +246,16 @@ class Articles:
                                  auth=HTTPBasicAuth(self.user, self.passwd),
                                  data=query)
         except Exception as error:
-            print('\nElasticsearch request error:', error)
+            logger.error('Elasticsearch request [%s] error [%s]:', query, error)
             return result
 
         try:
             resp_text: Dict[str, Any] = json.loads(resp.text)
             for hit in resp_text['hits']['hits']:
                 result.append(Article(hit['_source']))
+            logger.info("Loaded [%s] Elasticsearch articles.", len(result))
         except:
-            print('\nElasticsearch parse error:', resp.text)
+            logger.error('Elasticsearch parse error [%s]:', resp.text)
 
         return result
 

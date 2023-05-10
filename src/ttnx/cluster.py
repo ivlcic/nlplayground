@@ -1,9 +1,12 @@
+import logging
 import networkx as nx
 import numpy as np
 
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 from kl.articles import Article
+
+logger = logging.getLogger('ttnx.cluster')
 
 
 def cluster_louvain(articles: List[Article], embed_field_name: str, similarity_threshold: float = 0.90):

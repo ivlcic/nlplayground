@@ -1,8 +1,11 @@
+import logging
 import uuid
 
 from typing import List
 from kl.articles import Article
 from ttnx.api import call_textonic
+
+logger = logging.getLogger('ttnx.embed')
 
 
 def __call_ttxn_embed(articles: List[Article], embed_field_name: str):
@@ -36,11 +39,13 @@ def __call_ttxn_embed(articles: List[Article], embed_field_name: str):
             ]
         }
         request['documents'].append(document)
+    logger.debug('Loading [%s] articles Textonic embedding ...', len(articles))
     result = call_textonic(request)
     for res_item, a in zip(result, articles):
         for res in res_item['result']:
             if 'c' in res and 'v' in res and 'doc_embed' in res['c']:
                 a.data[embed_field_name] = res['v']
+    logger.info('Loaded [%s] articles Textonic embeddings.', len(articles))
 
 
 def ttnx_embed(articles: List[Article], embed_field_name: str):
@@ -48,12 +53,11 @@ def ttnx_embed(articles: List[Article], embed_field_name: str):
     for a in articles:
         if a.from_cache('data'):  # read from file
             if embed_field_name in a.data:  # we already did the embedding
+                logger.debug('Loaded %s article Textonic sentence BERT embedding from cache.', a)
                 continue
         embed.append(a)
-
+    if not embed:
+        return
     __call_ttxn_embed(embed, embed_field_name)
     for a in embed:
         a.to_cache('data')  # cache article to file
-
-
-
