@@ -2,14 +2,12 @@ import os
 import requests
 import json
 import uuid
-import numpy as np
 
 from mergedeep import merge
 from uuid import uuid3
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
-from typing import Any, List, TypeVar
-
+from typing import Any, List, TypeVar, Dict
 
 TArticle = TypeVar("TArticle", bound="Article")
 TArticles = TypeVar("TArticles", bound="Articles")
@@ -32,6 +30,12 @@ class Article:
 
         if 'country' in self.data:
             self.country = self.data['country']['name']
+
+        if 'mediaReach' in self.data:
+            self.mediaReach = self.data['mediaReach']
+        if 'advertValue' in self.data:
+            self.advertValue = self.data['advertValue']
+
         if 'media' in self.data:
             self.media = self.data['media']['name']
             if 'tags' in self.data['media']:
@@ -46,14 +50,16 @@ class Article:
                 if 'org.dropchop.jop.beans.tags.CustomerTopic' == tag['class']:
                     self.topics.append(tag)
 
-    def __init__(self, json_object: dict):
-        self.data: dict[str, Any] = json_object
+    def __init__(self, json_object: Dict[str, Any]):
+        self.data: Dict[str, Any] = json_object
         self.uuid: str = ''
         self.language: str = ''
         self.title: str = ''
         self.body: str = ''
         self.media: str = ''
-        self.media_type: dict[str, Any] = {}
+        self.mediaReach: int = 0
+        self.advertValue: float = 0.0
+        self.media_type: Dict[str, Any] = {}
         self.customers: List = []
         self.topics: List = []
         self.country: str = ''
@@ -124,6 +130,8 @@ class Articles:
             "published",
             "tags",
             "media",
+            "mediaReach",
+            "advertValue",
             "media.tags",
             "country",
             "language",
@@ -234,15 +242,15 @@ class Articles:
                                  auth=HTTPBasicAuth(self.user, self.passwd),
                                  data=query)
         except Exception as error:
-            print('\nelasticsearch request error:', error)
+            print('\nElasticsearch request error:', error)
             return result
 
         try:
-            resp_text: dict[str, Any] = json.loads(resp.text)
+            resp_text: Dict[str, Any] = json.loads(resp.text)
             for hit in resp_text['hits']['hits']:
                 result.append(Article(hit['_source']))
         except:
-            print('\nelasticsearch parse error:', resp.text)
+            print('\nElasticsearch parse error:', resp.text)
 
         return result
 

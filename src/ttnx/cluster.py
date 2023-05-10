@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from typing import List
+from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 from kl.articles import Article
 
@@ -28,3 +28,16 @@ def cluster_louvain(articles: List[Article], embed_field_name: str, similarity_t
             clusters[lbl].append(a)
     clusters = dict(sorted(clusters.items(), key=lambda x: -len(x[1])))
     return clusters
+
+
+def cluster_print(clusters: Dict[int, List[Article]]):
+    for k in clusters.keys():
+        articles: List[Article] = clusters[k]
+        articles.sort(key=lambda article: article.mediaReach, reverse=True)
+        print("Cluster [" + articles[0].title + "]")
+        for x, a in enumerate(articles):
+            if x == len(articles) - 1:
+                print('\t+---' + str(a))
+                print('')
+            else:
+                print('\t|---' + str(a))
