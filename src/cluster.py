@@ -19,14 +19,15 @@ articles: List[Article] = requests.gets('2023-05-09')
 openai_embed(articles, 'openai_embd')
 ttnx_embed(articles, 'ttnx_embd')
 
-oai_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
-ttnx_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
+oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
+ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.92)
 
-print("========================== OpenAI ========================== ")
-cluster_print(oai_clusters)
+print('')
+print('========================== OpenAI ========================== ')
+cluster_print(oai_l_clusters)
 
-print("========================== Textonic ========================== ")
-cluster_print(ttnx_clusters)
+print('========================== Textonic ========================== ')
+cluster_print(ttnx_l_clusters)
 
 
 
