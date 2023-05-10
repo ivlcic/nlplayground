@@ -1,6 +1,7 @@
 numpy
 requests
 mergedeep
+tiktoken
 openai
 networkx
 scikit-learn
