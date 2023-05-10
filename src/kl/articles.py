@@ -46,9 +46,6 @@ class Article:
                 if 'org.dropchop.jop.beans.tags.CustomerTopic' == tag['class']:
                     self.topics.append(tag)
 
-        if 'openai_embd' in self.data:
-            self.openai_embd = np.array(self.data['openai_embd'])
-
     def __init__(self, json_object: dict):
         self.data: dict[str, Any] = json_object
         self.uuid: str = ''
@@ -227,7 +224,7 @@ class Articles:
         query = query.replace('<date_start>', start.astimezone().isoformat())
         query = query.replace('<date_end>', end.astimezone().isoformat())
         query = self._inject_filters(query)
-        print(query)
+        # print(query)
 
         result = []
         try:
