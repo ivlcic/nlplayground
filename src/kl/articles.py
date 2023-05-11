@@ -87,7 +87,7 @@ class Article:
         fname = os.path.join('data', self.uuid + '.json')
         if not os.path.exists(fname):
             return False
-        with open(fname) as file:
+        with open(fname, encoding='utf8') as file:
             json_object = json.loads(file.read())
             merge(json_object, self.data)
             self.data = json_object
