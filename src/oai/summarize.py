@@ -2,15 +2,13 @@ import logging
 import math
 import openai
 import tiktoken
+import oai.constants as oai_const
 
 from typing import List
 from kl.articles import Article
-from oai.tokenize import MODEL_TOKENS, MODEL_ABBREV, DEFAULT_ENCODING, create_chunks
+from oai.tokenize import create_chunks
 
 logger = logging.getLogger('oai.summarize')
-
-DEFAULT_MODEL = 'text-davinci-003'
-DEFAULT_S_REPLACE = '<document>'
 
 
 def __call_openai_completion(text, prompt_template, search_replace, max_model_len, tokenizer, model, max_tokens):
@@ -48,12 +46,12 @@ def __call_openai_completion(text, prompt_template, search_replace, max_model_le
 
 
 def summarize_article(articles: List[Article], max_tokens=512, summary_field_name: str = None,
-                      prompt_template: str = None, model=DEFAULT_MODEL,
-                      search_replace: str = DEFAULT_S_REPLACE):
-    if model not in MODEL_TOKENS:
+                      prompt_template: str = None, model=oai_const.DEFAULT_MODEL,
+                      search_replace: str = oai_const.DEFAULT_S_REPLACE):
+    if model not in oai_const.MODEL_TOKENS:
         raise RuntimeError('Invalid model specified!')
-    max_model_len = MODEL_TOKENS[model]
-    model_abbrev = MODEL_ABBREV[model]
+    max_model_len = oai_const.MODEL_TOKENS[model]
+    model_abbrev = oai_const.MODEL_ABBREV[model]
     if not summary_field_name:
         summary_field_name = 'summary-' + model_abbrev
 

@@ -9,7 +9,7 @@ from mergedeep import merge
 from uuid import uuid3
 from requests.auth import HTTPBasicAuth
 from datetime import datetime, timedelta
-from typing import Any, List, TypeVar, Dict
+from typing import Any, List, TypeVar, Dict, Union, Iterable
 
 logger = logging.getLogger('kl.articles')
 
@@ -105,6 +105,7 @@ class Articles:
         self.limit = 100
         self.offset = 0
         self.filter = {
+            'uuids': [],
             'topics': [],
             'customers': [],
             'media_tags': [],
@@ -158,6 +159,16 @@ class Articles:
                 }
                 '''
             )
+        if self.filter['uuids']:
+            self.filters.append(
+                '''
+                {
+                  "terms": {
+                    "uuid": ''' + json.dumps(self.filter['uuids']) + '''
+                  }
+                }
+                '''
+            )
         if self.filter['country']:
             self.filters.append(
                 '''
@@ -197,15 +208,31 @@ class Articles:
         if not customer_uuid:
             self.filter['customers'] = []
             return self
-        self.filter['customers'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + customer_uuid)))
+        if isinstance(customer_uuid, str):
+            self.filter['customers'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + customer_uuid)))
+            return self
+
+        [self.filter['topics'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + x))) for x in customer_uuid]
         return self
 
-    def filter_topic(self, topic_uuid: str) -> TArticles:
+    def filter_topic(self, topic_uuid: Union[str, Iterable[str]]) -> TArticles:
         if not topic_uuid:
             self.filter['topics'] = []
             return self
+        if isinstance(topic_uuid, str):
+            self.filter['topics'].append(topic_uuid)
+            return self
+        self.filter['topics'].extend(topic_uuid)
+        return self
 
-        self.filter['topics'].append(topic_uuid)
+    def filter_uuid(self, a_uuid: Union[str, Iterable[str]]) -> TArticles:
+        if not a_uuid:
+            self.filter['uuids'] = []
+            return self
+        if isinstance(a_uuid, str):
+            self.filter['uuids'].append(a_uuid)
+            return self
+        self.filter['uuids'].extend(a_uuid)
         return self
 
     def filter_country(self, code: str) -> TArticles:

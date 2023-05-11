@@ -1,14 +1,12 @@
 import logging
 import openai
+import oai.constants as oai_const
 
 from typing import List
 from kl.articles import Article
 from oai.tokenize import truncate_text_tokens
 
 logger = logging.getLogger('oai.embed')
-
-EMBEDDING_ENCODING = 'cl100k_base'
-EMBEDDING_CTX_LENGTH = 8191
 
 
 def openai_embed(articles: List[Article], embed_field_name: str):
@@ -18,7 +16,11 @@ def openai_embed(articles: List[Article], embed_field_name: str):
                 logger.debug('Loaded %s article OpenAI embedding from cache.', a)
                 continue
         logger.debug('Loading %s article OpenAI embedding ...', a)
-        tokens = truncate_text_tokens(a.title + ' ' + a.body, EMBEDDING_ENCODING, EMBEDDING_CTX_LENGTH)
+        tokens = truncate_text_tokens(
+            a.title + ' ' + a.body,
+            oai_const.EMBEDDING_ENCODING,
+            oai_const.EMBEDDING_CTX_LENGTH
+        )
         embedding = openai.Embedding.create(  # call OpenAI
             input=tokens, model="text-embedding-ada-002"
         )
