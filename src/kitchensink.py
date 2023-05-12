@@ -70,7 +70,7 @@ weighted_average = torch.mean(weighted, dim=0)
 # Print the weighted average
 print(weighted_average)
 
-num_steps = 25
+num_steps = 49
 interval = end - start
 step_size = interval / num_steps
 x = torch.arange(start, end, step_size)

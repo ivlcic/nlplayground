@@ -2,6 +2,7 @@ TTNX_API_KEY = 'TTNX_API_KEY'
 
 TTNX_AVG_SQUEEZE = "squeeze"
 TTNX_AVG_SENTENCE = "sentence"
+TTNX_AVG_CHEAT = "cheat"
 TTNX_WEIGHT_NEG_LIN = "neg_lin"
 TTNX_WEIGHT_NEG_EXP = "neg_exp"
 

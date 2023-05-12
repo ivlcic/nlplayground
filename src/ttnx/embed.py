@@ -68,7 +68,7 @@ def ttnx_embed(articles: List[Article], embed_field_name: str, cache: bool = Tru
         embed.append(a)
     if not embed:
         return
-    __call_ttxn_embed(embed, embed_field_name)
+    __call_ttxn_embed(embed, embed_field_name, average_t, weight_t)
     if cache:
         for a in embed:
             a.to_cache('data')  # cache article to file
