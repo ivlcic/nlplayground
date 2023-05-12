@@ -75,6 +75,16 @@ class Article:
         return '[' + self.uuid + '][' + self.created.astimezone().isoformat(timespec='seconds') \
             + '][' + self.country + '][' + self.media + '][' + self.title + ']'
 
+    def __eq__(self, other):
+        if isinstance(other, Article):
+            return self.uuid == other.uuid
+        return NotImplemented
+
+    def __hash__(self):
+        if self.uuid:
+            return self.uuid.__hash__()
+        return NotImplemented
+
     def to_cache(self, data_path):
         if not os.path.exists(data_path):
             os.makedirs(data_path)

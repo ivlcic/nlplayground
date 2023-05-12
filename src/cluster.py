@@ -3,7 +3,7 @@
 from typing import List
 from kl.articles import Articles, Article
 from oai.embed import openai_embed
-from ttnx.cluster import cluster_louvain, cluster_print
+from ttnx.cluster import cluster_louvain, cluster_print, cluster_compare
 from ttnx.constants import TTNX_AVG_SQUEEZE, TTNX_WEIGHT_NEG_LIN
 from ttnx.embed import ttnx_embed
 
@@ -27,3 +27,7 @@ if __name__ == "__main__":
     print('')
     print('========================== Textonic ========================== ')
     cluster_print(ttnx_l_clusters)
+
+    print('')
+    print('========================== Compare clustering ========================== ')
+    cluster_compare(oai_l_clusters, ttnx_l_clusters, 'OpenAI', 'Textonic')
