@@ -36,7 +36,7 @@ def cluster_louvain(articles: List[Article], embed_field_name: str, similarity_t
 def cluster_print(clusters: Dict[int, List[Article]]):
     for k in clusters.keys():
         articles: List[Article] = clusters[k]
-        articles.sort(key=lambda article: article.mediaReach, reverse=True)
+        articles.sort(key=lambda article: (article.mediaReach, article.created), reverse=True)
         print("Cluster [" + articles[0].title + "]")
         for x, a in enumerate(articles):
             if x == len(articles) - 1:

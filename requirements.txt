@@ -5,3 +5,4 @@ tiktoken
 openai
 networkx
 scikit-learn
+torch

@@ -8,7 +8,13 @@ from ttnx.api import call_textonic
 logger = logging.getLogger('ttnx.embed')
 
 
-def __call_ttxn_embed(articles: List[Article], embed_field_name: str):
+def __call_ttxn_embed(articles: List[Article], embed_field_name: str,
+                      average_t: str = None, weight_t: str = None):
+    attrs = []
+    if average_t is not None:
+        attrs.append({"avg": average_t})
+        if weight_t is not None:
+            attrs.append({"weight": weight_t})
     request = {
         'requestId': str(uuid.uuid4()),
         'process': {
@@ -22,6 +28,9 @@ def __call_ttxn_embed(articles: List[Article], embed_field_name: str):
         },
         'documents': []
     }
+    if attrs:
+        request['process']['analysis']['steps'][0]['attributes'] = attrs
+
     for a in articles:
         document = {
             'id': a.uuid,
@@ -48,7 +57,8 @@ def __call_ttxn_embed(articles: List[Article], embed_field_name: str):
     logger.info('Loaded [%s] articles Textonic embeddings.', len(articles))
 
 
-def ttnx_embed(articles: List[Article], embed_field_name: str):
+def ttnx_embed(articles: List[Article], embed_field_name: str, cache: bool = True,
+               average_t: str = None, weight_t: str = None):
     embed = []
     for a in articles:
         if a.from_cache('data'):  # read from file
@@ -59,5 +69,6 @@ def ttnx_embed(articles: List[Article], embed_field_name: str):
     if not embed:
         return
     __call_ttxn_embed(embed, embed_field_name)
-    for a in embed:
-        a.to_cache('data')  # cache article to file
+    if cache:
+        for a in embed:
+            a.to_cache('data')  # cache article to file

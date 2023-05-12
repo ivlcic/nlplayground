@@ -5,12 +5,15 @@ import requests
 
 from typing import Any, Dict, List
 
+from ttnx.constants import TTNX_API_KEY
+
 logger = logging.getLogger('ttnx.api')
 
 
 def call_textonic(json_object: Dict[str, Any]) -> List[Dict[str, Any]]:
     url = 'https://textonic.io/api/public/ml/process'
-    api_key = os.environ['TTNX_API_KEY']
+    # url = 'http://localhost:8080/api/public/ml/process'
+    api_key = os.environ[TTNX_API_KEY]
     query = json.dumps(json_object)
     result = []
     logger.debug('Invoking Textonic [%s]...', url)
