@@ -8,13 +8,14 @@ from ttnx.constants import TTNX_AVG_SQUEEZE, TTNX_AVG_SENTENCE, TTNX_AVG_TRUNCAT
 from ttnx.embed import ttnx_embed
 
 if __name__ == "__main__":
-    # .filter_customer('7fd935a6-a1f5-42d1-8b5f-048dd54c07d1')\
-    # .filter_customer('a65c7372-9fbe-410c-93d7-4613d26488e7')\
-    requests = Articles()\
-        .filter_customer('a6f60ee6-f990-4620-8508-c3a6f6cc0dc1')\
-        .filter_country('SI')
+    requests = Articles()
+    # requests.filter_customer('7fd935a6-a1f5-42d1-8b5f-048dd54c07d1')
+    # requests.filter_customer('a6f60ee6-f990-4620-8508-c3a6f6cc0dc1')
+    requests.filter_customer('a65c7372-9fbe-410c-93d7-4613d26488e7')
+    requests.filter_country('SI')
 
-    articles: List[Article] = requests.gets('2023-05-10T08:00:00', '2023-05-12T08:00:00')
+    # articles: List[Article] = requests.gets('2023-05-10T08:00:00', '2023-05-12T08:00:00')
+    articles: List[Article] = requests.gets('2023-05-11T08:00:00', '2023-05-12T08:00:00')
 
     openai_embed(articles, 'openai_embd')
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_NONE)  # old mode
