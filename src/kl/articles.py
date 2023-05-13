@@ -30,7 +30,10 @@ class Article:
             self.language = self.data['language']
             if 'translations' in self.data and self.language in self.data['translations']:
                 self.title = self.data['translations'][self.language]['title']
-                self.body = self.data['translations'][self.language]['body']
+                try:
+                    self.body = self.data['translations'][self.language]['body']
+                except Exception as e:
+                    brek = 1
 
         if 'country' in self.data:
             self.country = self.data['country']['name']
@@ -291,7 +294,7 @@ class Articles:
             for hit in resp_text['hits']['hits']:
                 result.append(Article(hit['_source']))
             logger.info("Loaded [%s] Elasticsearch articles.", len(result))
-        except:
+        except Exception as error:
             logger.error('Elasticsearch parse error [%s]:', resp.text)
 
         return result
