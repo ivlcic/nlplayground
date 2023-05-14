@@ -61,7 +61,7 @@ def ttnx_embed(articles: List[Article], embed_field_name: str, cache: bool = Tru
                average_t: str = None, weight_t: str = None):
     embed = []
     for a in articles:
-        if a.from_cache('data'):  # read from file
+        if cache and a.from_cache('data'):  # read from file
             if embed_field_name in a.data:  # we already did the embedding
                 logger.debug('Loaded %s article Textonic sentence BERT embedding from cache.', a)
                 continue

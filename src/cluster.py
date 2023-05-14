@@ -15,11 +15,12 @@ if __name__ == "__main__":
     requests.filter_country('SI')
 
     # articles: List[Article] = requests.gets('2023-05-10T08:00:00', '2023-05-12T08:00:00')
-    articles: List[Article] = requests.gets('2023-05-11T08:00:00', '2023-05-12T08:00:00')
+    #articles: List[Article] = requests.gets('2023-05-11T08:00:00', '2023-05-12T08:00:00')
+    articles: List[Article] = requests.gets('2023-05-13T08:00:00', '2023-05-14T08:00:00')
 
     openai_embed(articles, 'openai_embd')
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_NONE)  # old mode
-    ttnx_embed(articles, 'ttnx_embd', cache=False)
+    ttnx_embed(articles, 'ttnx_embd')
 
     oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
     ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.74)
