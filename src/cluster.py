@@ -21,11 +21,11 @@ if __name__ == "__main__":
 
     openai_embed(articles, 'openai_embd')
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_NONE)  # old mode
-    ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_SQUEEZE, weight_t=TTNX_WEIGHT_NEG_LIN)  # old mode
-    #ttnx_embed(articles, 'ttnx_embd', cache=False)
+    # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_SQUEEZE, weight_t=TTNX_WEIGHT_NEG_LIN)  # alt mode
+    ttnx_embed(articles, 'ttnx_embd', cache=False)
 
     oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
-    ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.84)
+    ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.74)
     #ttnx_l_clusters = cluster_ttxn(articles, 'vector_768___doc_embed___sbert___pmmb-v2-kl-ijs', 0.84)
 
     print('')
