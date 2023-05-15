@@ -49,11 +49,13 @@ def __call_ttxn_embed(articles: List[Article], embed_field_name: str,
         }
         request['documents'].append(document)
     logger.debug('Loading [%s] articles Textonic embedding ...', len(articles))
-    result = call_textonic(request)
-    for res_item, a in zip(result, articles):
+    resp_obj = call_textonic('/api/public/ml/process', request)
+
+    for res_item, a in zip(resp_obj['data'], articles):
         for res in res_item['result']:
             if 'c' in res and 'v' in res and 'doc_embed' in res['c']:
                 a.data[embed_field_name] = res['v']
+
     logger.info('Loaded [%s] articles Textonic embeddings.', len(articles))
 
 

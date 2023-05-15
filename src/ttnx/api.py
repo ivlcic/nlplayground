@@ -10,9 +10,9 @@ from ttnx.constants import TTNX_API_KEY
 logger = logging.getLogger('ttnx.api')
 
 
-def call_textonic(json_object: Dict[str, Any]) -> List[Dict[str, Any]]:
-    url = 'https://textonic.io/api/public/ml/process'
-    # url = 'http://localhost:8080/api/public/ml/process'
+def call_textonic(url_path: str, json_object: Dict[str, Any]) -> List[Dict[str, Any]]:
+    url = 'https://textonic.io' + url_path
+    # url = 'http://localhost:8080' + url_path
     api_key = os.environ[TTNX_API_KEY]
     query = json.dumps(json_object)
     result = []
@@ -32,11 +32,16 @@ def call_textonic(json_object: Dict[str, Any]) -> List[Dict[str, Any]]:
         return result
     logger.info('Invoked Textonic [%s]', url)
     try:
-        resp_text: Dict[str, Any] = json.loads(resp.text)
-        if resp_text['status']['code'] == 'success':
-            for item in resp_text['data']:
-                result.append(item)
-        return result
+        resp_obj: Dict[str, Any] = json.loads(resp.text)
+        if resp_obj['status']['code'] == 'success':
+            return resp_obj
+        else:
+            logger.error(
+                "Textonic error [%s][%s]",
+                resp_obj['status']['message']['code'],
+                resp_obj['status']['message']['details']
+            )
+            raise RuntimeError('Textonic error!')
     except:
         logger.error('Textonic parse error [%s]:', resp.text)
     logger.info('Parsed Textonic [%s] articles.', len(result))

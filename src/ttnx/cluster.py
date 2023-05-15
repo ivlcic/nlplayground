@@ -1,15 +1,75 @@
 import logging
+import uuid
+
 import networkx as nx
 import numpy as np
 
 from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 from kl.articles import Article
+from ttnx.api import call_textonic
 
 logger = logging.getLogger('ttnx.cluster')
 
 
-def cluster_louvain(articles: List[Article], embed_field_name: str, similarity_threshold: float = 0.90):
+def __call_ttxn_cluster(articles: List[Article], embed_field_name: str,
+                      similarity_threshold: float = 0.84):
+
+    request = {
+        'requestId': str(uuid.uuid4()),
+        'process': {
+            'analysis': {
+                'steps': [
+                    {
+                        'step': 'cluster',
+                        'attributes': [
+                            {'sim_threshold': similarity_threshold}
+                        ]
+                    }
+                ]
+            }
+        },
+        'documents': []
+    }
+
+    tmp_articles = {}
+    for a in articles:
+        document = {
+            'id': a.uuid,
+            'vec': a.data[embed_field_name],
+        }
+        request['documents'].append(document)
+        tmp_articles[a.uuid] = a
+
+    logger.debug('Loading [%s] articles Textonic clustering ...', len(articles))
+    resp_obj = call_textonic('/api/public/ml/utils/louvain', request)
+    result = []
+    for item in resp_obj['result']:
+        if 'c' in item and 'cluster:louvain:louvain' in item['c']:
+            result = item['v']
+    clusters = {}
+    num_clusters = len(result)
+    logger.info('Loaded [%s] articles Textonic clusters.', num_clusters)
+    for k, cluster_a in enumerate(result):
+        lbl = num_clusters - k - 1
+        clusters[lbl] = []
+        for a_uuid in cluster_a:
+            clusters[lbl].append(tmp_articles[a_uuid])
+    return clusters
+
+
+def cluster_ttxn(articles: List[Article], embed_field_name: str, similarity_threshold: float = 0.84):
+    clusters = __call_ttxn_cluster(articles, embed_field_name, similarity_threshold)
+    clusters = dict(sorted(clusters.items(), key=lambda x: -len(x[1])))
+    consistent = {}
+    for k in clusters.keys():
+        articles: List[Article] = clusters[k]
+        articles.sort(key=lambda article: (article.mediaReach, article.created), reverse=True)
+        consistent[articles[0].uuid] = articles
+    return consistent
+
+
+def cluster_louvain(articles: List[Article], embed_field_name: str, similarity_threshold: float = 0.84):
     embeddings = []
     [embeddings.append(x.data[embed_field_name]) for x in articles]
     embeddings = np.array(embeddings)

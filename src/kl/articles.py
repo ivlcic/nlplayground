@@ -115,6 +115,19 @@ class Articles:
         self.passwd: str = passwd if passwd else os.environ['CPTM_SPASS']
         self.url: str = url if url else os.environ['CPTM_SURL']
         self.filters = []
+        self.fields = [
+            'uuid',
+            'created',
+            'published',
+            'tags',
+            'media',
+            'mediaReach',
+            'advertValue',
+            'media.tags',
+            'country',
+            'language',
+            'translations'
+        ]
         self.limit = 100
         self.offset = 0
         self.filter = {
@@ -143,17 +156,7 @@ class Articles:
             }
           },
           "_source": [
-            "uuid",
-            "created",
-            "published",
-            "tags",
-            "media",
-            "mediaReach",
-            "advertValue",
-            "media.tags",
-            "country",
-            "language",
-            "translations"
+            <fields>
           ],
           "from": <from>,
           "size": <size>
@@ -248,6 +251,16 @@ class Articles:
         self.filter['uuids'].extend(a_uuid)
         return self
 
+    def field(self, field: Union[str, Iterable[str]]) -> TArticles:
+        if not field:
+            self.fields = ['uuid']
+            return self
+        if isinstance(field, str):
+            self.fields.append(field)
+            return self
+        self.fields.extend(field)
+        return self
+
     def filter_country(self, code: str) -> TArticles:
         self.filter['country'] = code
         return self
@@ -276,8 +289,13 @@ class Articles:
         query = query.replace('<date_start>', start.astimezone().isoformat())
         query = query.replace('<date_end>', end.astimezone().isoformat())
         query = self._inject_filters(query)
-        # print(query)
-        logger.debug("Loading Elasticsearch articles ...")
+        fields = ''
+        for idx, field in enumerate(self.fields):
+            if idx > 0:
+                fields += ','
+            fields += '"' + field + '"'
+        query = query.replace('<fields>', fields)
+        logger.debug("Loading articles with Elasticsearch query: [%s]", query)
         result = []
         try:
             # make HTTP verb parameter case-insensitive by converting to lower()
