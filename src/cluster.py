@@ -24,8 +24,8 @@ if __name__ == "__main__":
     # ttnx_embed(articles, 'ttnx_embd')
 
     oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
-    #ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.74)
-    ttnx_l_clusters = cluster_ttxn(articles, 'vector_768___doc_embed___sbert___pmmb-v2-kl-ijs', 0.74)
+    #ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.75)
+    ttnx_l_clusters = cluster_ttxn(articles, 'vector_768___doc_embed___sbert___pmmb-v2-kl-ijs', 0.75)
 
     print('')
     print('========================== OpenAI ========================== ')
