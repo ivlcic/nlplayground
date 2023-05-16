@@ -45,7 +45,7 @@ class LocalModel:
         )
         return model_inputs
 
-    def encode(self, text: Union[str, List[str]], convert_to_tensor=True):
+    def encode(self, text: Union[str, List[str]], convert_to_tensor=True, show_progress_bar=False):
         model_inputs: BatchEncoding = self._tokenizer(
             text,
             return_tensors="pt",
@@ -108,7 +108,7 @@ def __local_text_squeeze(model: ModelType, sentences: List[str], average_t: int)
 def __local_average(model: ModelType, segments: List[str], weight_t: int) -> Tensor:
     embeddings = None
     for idx, s in enumerate(segments):
-        embedding: Tensor = model.encode(s.strip(), convert_to_tensor=True)
+        embedding: Tensor = model.encode(s.strip(), convert_to_tensor=True, show_progress_bar=False)
         if embeddings is None:
             embeddings = torch.unsqueeze(embedding, 0)
         else:
@@ -156,22 +156,6 @@ def __local_extract_sentences(text: str) -> List[str]:
     return result
 
 
-def __call_local_embed(articles: List[Article], embed_field_name: str,  model: ModelType):
-    for a in articles:
-        logging.debug("Embedding [%s] article [%s]...", embed_field_name, a)
-        title_sentences = __local_extract_sentences(a.title)
-        body_sentences = __local_extract_sentences(a.body)
-        all_sentences = []
-        all_sentences.extend(title_sentences)
-        all_sentences.extend(body_sentences)
-        embedding: Tensor = __local_avg_trunk(model, title_sentences, body_sentences)
-        # segments: List[str] = __local_text_squeeze(model, all_sentences, LOCAL_AVG_SQUEEZE)
-        # embedding: Tensor = __local_average(model, segments, 1)
-        a.data[embed_field_name] = __local_normalize(
-            embedding.cpu()[0].numpy()
-        ).tolist()
-        logging.debug("Embedded [%s] article [%s].", embed_field_name, a)
-
 
 def __local_embed(articles: List[Article], embed_field_name: str, model: ModelType,
                   cache: bool = True):
@@ -184,7 +168,22 @@ def __local_embed(articles: List[Article], embed_field_name: str, model: ModelTy
         embed.append(a)
     if not embed:
         return
-    __call_local_embed(embed, embed_field_name, model)
+
+    for a in articles:
+        logging.debug("Embedding [%s] article [%s]...", embed_field_name, a)
+        title_sentences = __local_extract_sentences(a.title)
+        body_sentences = __local_extract_sentences(a.body)
+        all_sentences = []
+        all_sentences.extend(title_sentences)
+        all_sentences.extend(body_sentences)
+        embedding: Tensor = __local_avg_trunk(model, title_sentences, body_sentences, 3)
+        # segments: List[str] = __local_text_squeeze(model, all_sentences, LOCAL_AVG_SQUEEZE)
+        # embedding: Tensor = __local_average(model, segments, 1)
+        a.data[embed_field_name] = __local_normalize(
+            embedding.cpu()[0].numpy()
+        ).tolist()
+        logging.debug("Embedded [%s] article [%s].", embed_field_name, a)
+
     if cache:
         for a in embed:
             a.to_cache('data')  # cache article to file
