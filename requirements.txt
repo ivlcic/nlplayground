@@ -6,3 +6,6 @@ openai
 networkx
 scikit-learn
 torch
+transformers
+obeliks
+sentence_transformers

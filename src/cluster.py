@@ -2,6 +2,7 @@
 
 from typing import List
 from kl.articles import Articles, Article
+from local.embed import local_stpara_embed, local_stmpnet_embed
 from oai.embed import openai_embed
 from ttnx.cluster import cluster_louvain, cluster_print, cluster_compare, cluster_ttxn
 from ttnx.constants import TTNX_AVG_SQUEEZE, TTNX_AVG_SENTENCE, TTNX_AVG_TRUNCATE, TTNX_AVG_NONE, TTNX_WEIGHT_NEG_LIN
@@ -23,18 +24,34 @@ if __name__ == "__main__":
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_NONE)  # old mode
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_SQUEEZE, weight_t=TTNX_WEIGHT_NEG_LIN)  # alt mode
     ttnx_embed(articles, 'ttnx_embd', cache=False)
+    local_stmpnet_embed(articles, 'st_mpnet_embd', cache=False)
+    local_stpara_embed(articles, 'st_para_embd', cache=False)
 
     oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
+    stmpnet_l_clusters = cluster_louvain(articles, 'st_mpnet_embd', 0.87)
+    stpara_l_clusters = cluster_louvain(articles, 'st_para_embd', 0.74)
     ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.74)
-    #ttnx_l_clusters = cluster_ttxn(articles, 'vector_768___doc_embed___sbert___pmmb-v2-kl-ijs', 0.84)
+    ttnx_es_l_clusters = cluster_ttxn(articles, 'vector_768___doc_embed___sbert___pmmb-v2-kl-ijs', 0.74)
 
     print('')
     print('========================== OpenAI ========================== ')
     cluster_print(oai_l_clusters)
 
     print('')
+    print('========================== Sentence Transformers As Textonic but processed localy - paraphrase model ')
+    cluster_print(stpara_l_clusters)
+
+    print('')
+    print('========================== Sentence Transformers mpnet model ===================== ')
+    cluster_print(stmpnet_l_clusters)
+
+    print('')
     print('========================== Textonic ========================== ')
     cluster_print(ttnx_l_clusters)
+
+    print('')
+    print('========================== Textonic from Elastic ========================== ')
+    cluster_print(ttnx_es_l_clusters)
 
     print('')
     print('========================== Compare clustering ========================== ')
