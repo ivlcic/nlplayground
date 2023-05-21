@@ -111,11 +111,11 @@ class Article:
 class Articles:
 
     def __init__(self, url: str = None, user: str = None, passwd: str = None):
-        self.user: str = user if user else os.environ['CPTM_SUSER']
-        self.passwd: str = passwd if passwd else os.environ['CPTM_SPASS']
-        self.url: str = url if url else os.environ['CPTM_SURL']
-        self.filters = []
-        self.fields = [
+        self._user: str = user if user else os.environ['CPTM_SUSER']
+        self._passwd: str = passwd if passwd else os.environ['CPTM_SPASS']
+        self._url: str = url if url else os.environ['CPTM_SURL']
+        self._filters = []
+        self._fields = [
             'uuid',
             'created',
             'published',
@@ -128,9 +128,9 @@ class Articles:
             'language',
             'translations'
         ]
-        self.limit = 100
-        self.offset = 0
-        self.filter = {
+        self._limit = 100
+        self._offset = 0
+        self._filter = {
             'uuids': [],
             'topics': [],
             'customers': [],
@@ -138,7 +138,7 @@ class Articles:
             'country': '',
             'language': '',
         }
-        self.query_tpl: str = '''
+        self._query_tpl: str = '''
         {
           "query": {
             "bool": {
@@ -164,9 +164,9 @@ class Articles:
         '''
 
     def _inject_filters(self, query: str) -> str:
-        tags = self.filter['topics'] + self.filter['customers']
+        tags = self._filter['topics'] + self._filter['customers']
         if tags:
-            self.filters.append(
+            self._filters.append(
                 '''
                 {
                   "terms": {
@@ -175,122 +175,122 @@ class Articles:
                 }
                 '''
             )
-        if self.filter['uuids']:
-            self.filters.append(
+        if self._filter['uuids']:
+            self._filters.append(
                 '''
                 {
                   "terms": {
-                    "uuid": ''' + json.dumps(self.filter['uuids']) + '''
+                    "uuid": ''' + json.dumps(self._filter['uuids']) + '''
                   }
                 }
                 '''
             )
-        if self.filter['country']:
-            self.filters.append(
+        if self._filter['country']:
+            self._filters.append(
                 '''
                 {
                   "term": {
-                    "country.name": "''' + self.filter['country'] + '''"
+                    "country.name": "''' + self._filter['country'] + '''"
                   }
                 }
                 '''
             )
-        if self.filter['language']:
-            self.filters.append(
+        if self._filter['language']:
+            self._filters.append(
                 '''
                 {
                   "term": {
-                    "language": "''' + self.filter['language'] + '''"
+                    "language": "''' + self._filter['language'] + '''"
                   }
                 }
                 '''
             )
-        if self.filter['media_tags']:
-            self.filters.append(
+        if self._filter['media_tags']:
+            self._filters.append(
                 '''
                 {
                   "terms": {
-                    "media.tags.uuid": ''' + json.dumps(self.filter['media_tags']) + '''
+                    "media.tags.uuid": ''' + json.dumps(self._filter['media_tags']) + '''
                   }
                 }
                 '''
             )
         filters = ''
-        if self.filters:
-            filters = ',' + ','.join(self.filters)
+        if self._filters:
+            filters = ',' + ','.join(self._filters)
         return query.replace('<filters>', filters)
 
     def filter_customer(self, customer_uuid: str) -> TArticles:
         if not customer_uuid:
-            self.filter['customers'] = []
+            self._filter['customers'] = []
             return self
         if isinstance(customer_uuid, str):
-            self.filter['customers'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + customer_uuid)))
+            self._filter['customers'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + customer_uuid)))
             return self
 
-        [self.filter['topics'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + x))) for x in customer_uuid]
+        [self._filter['topics'].append(str(uuid3(uuid.NAMESPACE_URL, 'CustomerTopicGroup.' + x))) for x in customer_uuid]
         return self
 
     def filter_topic(self, topic_uuid: Union[str, Iterable[str]]) -> TArticles:
         if not topic_uuid:
-            self.filter['topics'] = []
+            self._filter['topics'] = []
             return self
         if isinstance(topic_uuid, str):
-            self.filter['topics'].append(topic_uuid)
+            self._filter['topics'].append(topic_uuid)
             return self
-        self.filter['topics'].extend(topic_uuid)
+        self._filter['topics'].extend(topic_uuid)
         return self
 
     def filter_uuid(self, a_uuid: Union[str, Iterable[str]]) -> TArticles:
         if not a_uuid:
-            self.filter['uuids'] = []
+            self._filter['uuids'] = []
             return self
         if isinstance(a_uuid, str):
-            self.filter['uuids'].append(a_uuid)
+            self._filter['uuids'].append(a_uuid)
             return self
-        self.filter['uuids'].extend(a_uuid)
+        self._filter['uuids'].extend(a_uuid)
         return self
 
     def field(self, field: Union[str, Iterable[str]]) -> TArticles:
         if not field:
-            self.fields = ['uuid']
+            self._fields = ['uuid']
             return self
         if isinstance(field, str):
-            self.fields.append(field)
+            self._fields.append(field)
             return self
-        self.fields.extend(field)
+        self._fields.extend(field)
         return self
 
     def filter_country(self, code: str) -> TArticles:
-        self.filter['country'] = code
+        self._filter['country'] = code
         return self
 
     def filter_media_type(self, tag: str) -> TArticles:
         if not tag:
-            self.filter['media_tags'] = []
+            self._filter['media_tags'] = []
             return self
 
-        self.filter['media_tags'].append(tag)
+        self._filter['media_tags'].append(tag)
         return self
 
     def limit(self, limit: int) -> TArticles:
-        self.limit = limit
+        self._limit = limit
         return self
 
     def offset(self, offset: int) -> TArticles:
-        self.offset = offset
+        self._offset = offset
         return self
 
     def get(self, start: datetime, end: datetime = None) -> List[Article]:
         if not end:
             end = start + timedelta(hours=24)
-        query = self.query_tpl.replace('<from>', str(self.offset))
-        query = query.replace('<size>', str(self.limit))
+        query = self._query_tpl.replace('<from>', str(self._offset))
+        query = query.replace('<size>', str(self._limit))
         query = query.replace('<date_start>', start.astimezone().isoformat())
         query = query.replace('<date_end>', end.astimezone().isoformat())
         query = self._inject_filters(query)
         fields = ''
-        for idx, field in enumerate(self.fields):
+        for idx, field in enumerate(self._fields):
             if idx > 0:
                 fields += ','
             fields += '"' + field + '"'
@@ -299,9 +299,9 @@ class Articles:
         result = []
         try:
             # make HTTP verb parameter case-insensitive by converting to lower()
-            resp = requests.post(self.url,
+            resp = requests.post(self._url,
                                  headers={'Content-Type': 'application/json'},
-                                 auth=HTTPBasicAuth(self.user, self.passwd),
+                                 auth=HTTPBasicAuth(self._user, self._passwd),
                                  data=query)
         except Exception as error:
             logger.error('Elasticsearch request [%s] error [%s]:', query, error)
