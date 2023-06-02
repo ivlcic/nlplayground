@@ -23,7 +23,7 @@ def __call_ttxn_embed(articles: List[Article], embed_field_name: str,
                     {
                         'step': 'doc_embed',
                         'attributes': [
-                            {'named_sentence_filters', 'kl_transcript'}
+                            {'named_sentence_filters': 'kl_transcript'}
                         ]
                     }
                 ]
