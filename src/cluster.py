@@ -14,7 +14,7 @@ if __name__ == "__main__":
     # requests.filter_customer('a6f60ee6-f990-4620-8508-c3a6f6cc0dc1')
     requests.filter_customer('a65c7372-9fbe-410c-93d7-4613d26488e7')
     requests.filter_country('SI')
-    requests.field('vector_768___doc_embed___sbert___pmmb-v2-kl-ijs')
+    requests.field('vector_768___textonic_v1')
 
     # articles: List[Article] = requests.gets('2023-05-10T08:00:00', '2023-05-12T08:00:00')
     #articles: List[Article] = requests.gets('2023-05-11T08:00:00', '2023-05-12T08:00:00')

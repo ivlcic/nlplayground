@@ -28,7 +28,7 @@ if __name__ == "__main__":
         trust_remote_code=True,
         cache_dir=cache_model_dir
     )
-    config.attn_config['attn_impl'] = 'triton'
+    #config.attn_config['attn_impl'] = 'triton'
     logger.info("Loading model")
     model = transformers.AutoModelForCausalLM.from_pretrained(
         'mosaicml/mpt-7b-chat',
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         trust_remote_code=True,
         cache_dir=cache_model_dir
     )
-    # model.to(device='cuda:0')
-    model.to(device='cpu')
+    model.to(device='cuda:0')
+    # model.to(device='cpu')
     logger.info("Model loaded")
 
