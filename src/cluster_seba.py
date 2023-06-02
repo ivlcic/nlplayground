@@ -18,11 +18,11 @@ if __name__ == "__main__":
     openai_embed(articles, 'openai_embd')
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_NONE)  # old mode
     # ttnx_embed(articles, 'ttnx_embd', cache=False, average_t=TTNX_AVG_SQUEEZE, weight_t=TTNX_WEIGHT_NEG_LIN)  # alt mode
-    ttnx_embed(articles, 'ttnx_embd', cache=False)
+    ttnx_embed(articles, 'ttnx_embd', cache=True)
 
     oai_l_clusters = cluster_louvain(articles, 'openai_embd', 0.92)
     ttnx_l_clusters = cluster_louvain(articles, 'ttnx_embd', 0.79)
-    #ttnx_l_clusters = cluster_ttxn(articles, 'vector_768___textonic_v1', 0.84)
+    es_l_clusters = cluster_ttxn(articles, 'vector_768___textonic_v1', 0.84)
 
     print('')
     print('========================== OpenAI ========================== ')
@@ -33,5 +33,9 @@ if __name__ == "__main__":
     cluster_print(ttnx_l_clusters)
 
     print('')
+    print('========================== Elastic ========================== ')
+    cluster_print(es_l_clusters)
+
+    print('')
     print('========================== Compare clustering ========================== ')
-    cluster_compare(oai_l_clusters, ttnx_l_clusters, 'OpenAI', 'Textonic')
+    cluster_compare(oai_l_clusters, es_l_clusters, 'OpenAI', 'Textonic')
