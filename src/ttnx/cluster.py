@@ -33,7 +33,12 @@ def __call_ttxn_cluster(articles: List[Article], embed_field_name: str,
     }
 
     tmp_articles = {}
+    missing_vec = []
     for a in articles:
+        if embed_field_name not in a.data:
+            missing_vec.append(a)
+            continue
+
         document = {
             'id': a.uuid,
             'vec': a.data[embed_field_name],
@@ -55,6 +60,11 @@ def __call_ttxn_cluster(articles: List[Article], embed_field_name: str,
         clusters[lbl] = []
         for a_uuid in cluster_a:
             clusters[lbl].append(tmp_articles[a_uuid])
+
+    clusters_len = len(clusters)
+    for idx, a in enumerate(missing_vec):
+        clusters[clusters_len + idx] = [a]
+
     return clusters
 
 
